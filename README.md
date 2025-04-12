@@ -1,0 +1,2 @@
+# MSZIP
+MuszakiIdopontfoglalo
