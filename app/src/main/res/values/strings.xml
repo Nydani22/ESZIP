@@ -12,4 +12,9 @@
     <string name="menu_slideshow">Slideshow</string>
     <string name="bejelentkezes">Bejelentkezés</string>
     <string name="foglal">Foglalás</string>
+    <string name="megse">Mégse</string>
+    <string name="nev">Név</string>
+    <string name="email">Email</string>
+    <string name="password">Jelszó</string>
+    <string name="loginwithgoolgle">Bejelentkezés Google-al</string>
 </resources>
