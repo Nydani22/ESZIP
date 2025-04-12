@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_info">
+
+    <fragment
+        android:id="@+id/nav_info"
+        android:name="com.example.mszip.ui.info.InfoFragment"
+        android:label="Info"
+        tools:layout="@layout/fragmant_info" />
+
+    <fragment
+        android:id="@+id/nav_foglal"
+        android:name="com.example.mszip.ui.foglal.FoglalFragment"
+        android:label="@string/foglal"
+        tools:layout="@layout/fragment_foglal"
+        />
+
+    <fragment
+        android:id="@+id/nav_login"
+        android:name="com.example.mszip.ui.login.LoginFragment"
+        android:label="@string/bejelentkezes"
+        tools:layout="@layout/fragment_login"
+        />
+</navigation>
