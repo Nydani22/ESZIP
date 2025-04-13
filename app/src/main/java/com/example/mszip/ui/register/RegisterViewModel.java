@@ -1,15 +1,15 @@
-package com.example.mszip.ui.login;
+package com.example.mszip.ui.register;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class LoginViewModel extends ViewModel {
+public class RegisterViewModel extends ViewModel {
     private final MutableLiveData<String> mText;
 
-    public LoginViewModel() {
+    public RegisterViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("Bejelentkezés");
+        mText.setValue("Regisztráció");
     }
 
     public LiveData<String> getText() {
