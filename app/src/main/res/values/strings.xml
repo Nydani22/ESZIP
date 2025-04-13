@@ -21,4 +21,5 @@
     <string name="regisztracio">Regisztráció</string>
     <string name="jelszoagain">Jelszó megerősítés</string>
     <string name="teljesnev">Tejles név</string>
+    <string name="kijelentkezes">Kijelentkezés</string>
 </resources>

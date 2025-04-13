@@ -16,5 +16,10 @@
             android:id="@+id/nav_login"
             android:icon="@drawable/ic_person"
             android:title="@string/bejelentkezes" />
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_logout"
+            android:title="@string/kijelentkezes"
+            android:visible="false" />
     </group>
 </menu>
