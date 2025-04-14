@@ -18,6 +18,7 @@
     <string name="password">Jelszó</string>
     <string name="loginwithgoolgle">Bejelentkezés Google-al</string>
     <string name="eszip">ESZIP</string>
+    <string name="default_web_client_id">387382785909-7h5qri35as4dd0tg4lnlgrdcleqlvhbc.apps.googleusercontent.com</string>
     <string name="regisztracio">Regisztráció</string>
     <string name="jelszoagain">Jelszó megerősítés</string>
     <string name="teljesnev">Tejles név</string>
