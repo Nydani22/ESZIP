@@ -65,7 +65,7 @@ public class LoginFragment extends Fragment {
                 NavController navController = Navigation.findNavController(requireView());
                 navController.navigate(R.id.nav_info);
             } else {
-                Toast.makeText(getContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Sikertelen Bejelentkezés: "+task.getException().getMessage(), Toast.LENGTH_LONG).show();
             }
         });
 

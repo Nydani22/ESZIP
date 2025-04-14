@@ -17,9 +17,13 @@
     <string name="email">Email</string>
     <string name="password">Jelszó</string>
     <string name="loginwithgoolgle">Bejelentkezés Google-al</string>
-    <string name="mszip">MSZIP</string>
+    <string name="eszip">ESZIP</string>
     <string name="regisztracio">Regisztráció</string>
     <string name="jelszoagain">Jelszó megerősítés</string>
     <string name="teljesnev">Tejles név</string>
     <string name="kijelentkezes">Kijelentkezés</string>
+    <string name="szolg_ltat_s_neve">Szolgáltatás neve</string>
+    <string name="r">Ár:</string>
+    <string name="id_tartam">Időtartam:</string>
+    <string name="foglal_s">Foglalás</string>
 </resources>

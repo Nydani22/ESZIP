@@ -12,5 +12,7 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="backgroundColor">@color/dark_background</item>
+        <item name="cardBackgroundColor">@color/dark_card</item>
     </style>
 </resources>
