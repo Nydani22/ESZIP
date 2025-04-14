@@ -1,2 +1,2 @@
-# MSZIP
-MuszakiIdopontfoglalo
+# ESZIP
+Elektronikai szakszervíz időpontfoglaló
