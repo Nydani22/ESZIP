@@ -1,5 +1,6 @@
 [versions]
 agp = "8.9.1"
+constraintlayoutVersion = "2.1.4"
 firebaseBom = "33.12.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -13,7 +14,10 @@ navigationFragment = "2.8.9"
 navigationUi = "2.8.9"
 
 [libraries]
+constraintlayout-v214 = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayoutVersion" }
+firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

@@ -43,7 +43,7 @@ public class InfoFragment extends Fragment {
                 cardView.startAnimation(animation);
 
                 nameText.setText(service.name);
-                priceText.setText("Ár: " + service.price);
+                priceText.setText("Ár: " + service.price + " Ft");
                 timeText.setText("Időtartam: " + service.time);
                 bookButton.setOnClickListener(v -> {
                     //Toast.makeText(getContext(), "Foglalva: " + service.name, Toast.LENGTH_SHORT).show();
