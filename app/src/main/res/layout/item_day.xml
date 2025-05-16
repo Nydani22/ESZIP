@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="8dp">
 
-    <TextView
-        android:id="@+id/day_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="@string/nap"
-        android:textSize="16sp"
-        android:contentDescription="@string/nap" />
-</FrameLayout>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_day"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:gravity="center"
+    android:textSize="16sp"
+    android:textColor="#000"
+    android:background="?android:selectableItemBackground"
+    android:layout_margin="4dp" />
