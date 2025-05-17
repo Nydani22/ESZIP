@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ProfileViewModel extends ViewModel {
@@ -66,6 +67,7 @@ public class ProfileViewModel extends ViewModel {
                                             sm.getName(),
                                             String.valueOf(sm.getPrice())
                                     ));
+                                    Collections.sort(vmList, (a, b) -> b.getDatum().compareTo(a.getDatum()));
                                     foglalasok.postValue(new ArrayList<>(vmList));
                                 }
                                 @Override public void onFailure(Exception e) { /* kezelni */ }

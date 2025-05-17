@@ -61,7 +61,7 @@ public class FoglalasAdapter extends RecyclerView.Adapter<FoglalasAdapter.ViewHo
         FoglalasViewModel model = lista.get(position);
         holder.textDatum.setText(model.getDatum());
         holder.textSzolgaltatas.setText(model.getSzolgaltatasNev());
-        holder.textAr.setText(model.getAr());
+        holder.textAr.setText(model.getAr()+" Ft");
 
         holder.btnTorles.setOnClickListener(v -> {
             if (listener != null) {
