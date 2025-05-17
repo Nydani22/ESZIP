@@ -18,6 +18,10 @@ import com.example.mszip.MainActivity;
 import com.example.mszip.R;
 import com.example.mszip.databinding.FragmentRegisterBinding;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RegisterFragment extends Fragment {
     private FragmentRegisterBinding binding;
@@ -65,11 +69,28 @@ public class RegisterFragment extends Fragment {
 
         mAuth.createUserWithEmailAndPassword(email, pw).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).refreshMenu();
-                }
-                NavController navController = Navigation.findNavController(requireView());
-                navController.navigate(R.id.nav_info);
+                String uid = mAuth.getCurrentUser().getUid();
+
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                Map<String, Object> user = new HashMap<>();
+                user.put("id", uid);
+                user.put("teljesnev", name);
+                user.put("email", email);
+                user.put("role", "user");
+
+                db.collection("users").document(uid)
+                        .set(user)
+                        .addOnSuccessListener(aVoid -> {
+                            if (getActivity() instanceof MainActivity) {
+                                ((MainActivity) getActivity()).refreshMenu();
+                            }
+                            Navigation.findNavController(requireView()).navigate(R.id.nav_info);
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(getContext(), "Hiba a Firestore mentéskor: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        });
+
             } else {
                 Toast.makeText(getContext(), "Sikertelen regisztráció: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
             }

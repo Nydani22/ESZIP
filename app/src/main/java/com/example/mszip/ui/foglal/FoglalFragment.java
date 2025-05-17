@@ -19,13 +19,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.mszip.R;
 import com.example.mszip.model.idopont.Idopont;
 import com.example.mszip.model.service.Service;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickListener {
@@ -39,11 +43,18 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
     private DayAdapter dayAdapter;
 
     private FirebaseFirestore db;
+    private Idopont selectedIdopont = null;
+
 
     private final List<Idopont> idopontok = new ArrayList<>();
     private final Set<String> foglaltNapok = new HashSet<>();
+    private final Map<String, Idopont> napIdopontMap = new HashMap<>();
 
     private String selectedDate = null;
+    private FirebaseAuth mAuth;
+    private FirebaseUser user;
+
+
     private Service selectedService = null;
 
     @Override
@@ -60,11 +71,13 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
 
 
         db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+        user = mAuth.getCurrentUser();
 
         setupMonthSpinner();
 
         dayAdapter = new DayAdapter(days, foglaltNapok, this);
-        dateRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 7)); // hét napos rács
+        dateRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 7));
         dateRecyclerView.setAdapter(dayAdapter);
 
         updateDays();
@@ -95,12 +108,41 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
                 new AlertDialog.Builder(requireContext()).setTitle("Hiba").setMessage("Kérlek válassz egy szolgáltatást!").setPositiveButton("OK",null).show();
                 return;
             }
-            // Itt jönne a foglalás logika, most csak egy üzenet
-            new AlertDialog.Builder(requireContext())
-                    .setTitle("Foglalás")
-                    .setMessage("Foglalás: " + selectedService.name + "\nDátum: " + selectedDate)
-                    .setPositiveButton("OK", null)
-                    .show();
+
+            if (user == null) {
+                Toast.makeText(requireContext(), "Nem vagy bejelentkezve", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            String idopontId = selectedIdopont.id;
+            Map<String, Object> foglalas = new HashMap<>();
+            foglalas.put("userid", user.getUid());
+            foglalas.put("idopontid", idopontId);
+            foglalas.put("datum", selectedDate);
+            FirebaseFirestore.getInstance()
+                    .collection("Foglalasok")
+                    .add(foglalas)
+                    .addOnSuccessListener(documentReference -> {
+                        FirebaseFirestore.getInstance()
+                                .collection("Idopontok")
+                                .document(idopontId)
+                                .update("available", false)
+                                .addOnSuccessListener(aVoid -> {
+                                    updateDays();
+                                    loadIdopontokForSelectedService();
+                                    new AlertDialog.Builder(requireContext())
+                                            .setTitle("Sikeres Foglalás!")
+                                            .setMessage("Foglalás: " + selectedService.name + "\nDátum: " + selectedDate)
+                                            .setPositiveButton("OK", null)
+                                            .show();
+                                })
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(requireContext(), "Időpont frissítés sikertelen: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                                );
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(requireContext(), "Sikertelen foglalás: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                    );
+
         });
 
         viewModel.getServices().observe(getViewLifecycleOwner(), fetchedServices -> {
@@ -191,6 +233,7 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
                     if (task.isSuccessful()) {
                         idopontok.clear();
                         foglaltNapok.clear();
+                        napIdopontMap.clear();
                         Set<String> elerhetoNapok = new HashSet<>();
 
                         for (QueryDocumentSnapshot doc : task.getResult()) {
@@ -198,7 +241,9 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
                             Boolean available = doc.getBoolean("available");
 
                             if (date != null) {
+                                Idopont idopont = doc.toObject(Idopont.class);
                                 elerhetoNapok.add(date);
+                                napIdopontMap.put(date, idopont);
                                 if (!Boolean.TRUE.equals(available)) {
                                     foglaltNapok.add(date);
                                 }
@@ -207,6 +252,7 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
 
                         dayAdapter.setFoglaltNapok(foglaltNapok);
                         dayAdapter.setElerhetoNapok(elerhetoNapok);
+                        dayAdapter.setNapIdopontMap(napIdopontMap);
                         dayAdapter.notifyDataSetChanged();
                     } else {
                         Toast.makeText(requireContext(), "Nem sikerült betölteni az időpontokat", Toast.LENGTH_SHORT).show();
@@ -215,10 +261,13 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
     }
 
 
+
     @Override
-    public void onDayClick(String day) {
-        if (!foglaltNapok.contains(day)) {
+    public void onDayClick(String day, Idopont idopont) {
+
+        if (idopont != null && !foglaltNapok.contains(day)) {
             selectedDate = day;
+            selectedIdopont = idopont;
             dayAdapter.setSelectedDate(day);
             dayAdapter.notifyDataSetChanged();
         } else {

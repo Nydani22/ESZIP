@@ -1,7 +1,7 @@
 package com.example.mszip.model.user;
 
 public class User {
-    public String id, email ,teljesnev, role;
+    public String id, email, teljesnev, role;
 
     public User(String id, String email, String teljesnev,String role) {
         this.id = id;

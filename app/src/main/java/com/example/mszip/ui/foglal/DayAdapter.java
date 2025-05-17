@@ -1,5 +1,6 @@
 package com.example.mszip.ui.foglal;
 
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,14 +10,18 @@ import com.example.mszip.R;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import com.example.mszip.model.idopont.Idopont;
 
 public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
 
     public interface OnDayClickListener {
-        void onDayClick(String day);
+        void onDayClick(String day, Idopont idopont);
     }
 
     private List<String> days;
@@ -26,6 +31,7 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
     private final OnDayClickListener listener;
 
 
+    private Map<String, Idopont> napIdopontMap = new HashMap<>();
 
     public DayAdapter(List<String> days, Set<String> foglaltNapok, OnDayClickListener listener) {
         this.days = days;
@@ -43,6 +49,10 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
 
     public void setSelectedDate(String selectedDate) {
         this.selectedDate = selectedDate;
+    }
+
+    public void setNapIdopontMap(Map<String, Idopont> map) {
+        this.napIdopontMap = map != null ? map : new HashMap<>();
     }
 
     @NonNull
@@ -81,17 +91,20 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
             boolean kattinthato = elerheto && !foglalt;
 
             textView.setEnabled(kattinthato);
-            textView.setTextColor(kattinthato ? (selected ? Color.WHITE : Color.BLACK) : Color.GRAY);
+            boolean darkMode = (itemView.getContext().getResources().getConfiguration().uiMode
+                    & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+
+            int normalColor = darkMode ? Color.WHITE : Color.BLACK;
+
+            textView.setTextColor(kattinthato ? (selected ? Color.WHITE : normalColor) : Color.LTGRAY);
             textView.setBackgroundColor(selected ? Color.BLUE : Color.TRANSPARENT);
 
             itemView.setOnClickListener(v -> {
                 if (kattinthato) {
-                    listener.onDayClick(fullDate);
+                    Idopont idopont = napIdopontMap.get(fullDate);
+                    listener.onDayClick(fullDate, idopont);
                 }
             });
         }
     }
 }
-
-
-

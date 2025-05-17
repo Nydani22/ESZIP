@@ -51,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
 
             if (itemId == R.id.nav_logout) {
                 mAuth.signOut();
-                updateLoginMenuItem(navigationView);
                 navController.navigate(R.id.nav_info);
+                updateLoginMenuItem(navigationView);
                 return true;
             }
 

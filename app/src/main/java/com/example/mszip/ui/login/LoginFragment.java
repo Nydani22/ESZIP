@@ -30,7 +30,13 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginFragment extends Fragment {
     private FragmentLoginBinding binding;
@@ -70,7 +76,7 @@ public class LoginFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
 
-        if (binding.textView!=null) { //landscape crash
+        if (binding.textView!=null) {
             final TextView textView = binding.textView;
 
             loginViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
@@ -106,16 +112,46 @@ public class LoginFragment extends Fragment {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).refreshMenu();
+                FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                if (firebaseUser != null) {
+                    String uid = firebaseUser.getUid();
+                    DocumentReference userRef = db.collection("Users").document(uid);
+
+                    userRef.get().addOnSuccessListener(documentSnapshot -> {
+                        if (!documentSnapshot.exists()) {
+                            Map<String, Object> newUser = new HashMap<>();
+                            newUser.put("id", uid);
+                            newUser.put("teljesnev", firebaseUser.getDisplayName());
+                            newUser.put("email", firebaseUser.getEmail());
+                            newUser.put("role", "user");
+
+                            userRef.set(newUser)
+                                    .addOnSuccessListener(aVoid -> {
+                                        if (getActivity() instanceof MainActivity) {
+                                            ((MainActivity) getActivity()).refreshMenu();
+                                        }
+                                        Navigation.findNavController(requireView()).navigate(R.id.nav_info);
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(getContext(), "Hiba a mentésnél: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                    });
+                        } else {
+                            if (getActivity() instanceof MainActivity) {
+                                ((MainActivity) getActivity()).refreshMenu();
+                            }
+                            Navigation.findNavController(requireView()).navigate(R.id.nav_info);
+                        }
+                    });
                 }
-                NavController navController = Navigation.findNavController(requireView());
-                navController.navigate(R.id.nav_info);
+
             } else {
-                Toast.makeText(getContext(), "Firebase hitelesítés sikertelen: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Google belépés sikertelen!", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
 
     private void login(View view) {
