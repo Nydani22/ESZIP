@@ -1,5 +1,6 @@
 package com.example.mszip.ui.register;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,11 +58,34 @@ public class RegisterFragment extends Fragment {
             return;
         }
 
+
         String name = teljesnevET.getText().toString();
         String email = emailET.getText().toString();
         String pw = pwET.getText().toString();
         String pw2 = pwAgainET.getText().toString();
 
+        if (name.isEmpty()) {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Sikertelen regisztráció!")
+                    .setMessage("Nem adtál meg vagy helytelen a teljes név.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        } else if (email.isEmpty()) {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Sikertelen regisztráció!")
+                    .setMessage("Nem adtál meg vagy helytelen az email cím.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        } else if (pw.isEmpty()) {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Sikertelen regisztráció!")
+                    .setMessage("Nem adtál meg vagy helytelen a jelszó.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
         if (!pw.equals(pw2)) {
             Toast.makeText(getContext(), "A jelszavak nem egyeznek!", Toast.LENGTH_SHORT).show();
             return;
@@ -79,10 +103,11 @@ public class RegisterFragment extends Fragment {
                 user.put("email", email);
                 user.put("role", "user");
 
-                db.collection("users").document(uid)
+                db.collection("Users").document(uid)
                         .set(user)
                         .addOnSuccessListener(aVoid -> {
                             if (getActivity() instanceof MainActivity) {
+                                ((MainActivity) requireActivity()).updateNavHeader();
                                 ((MainActivity) getActivity()).refreshMenu();
                             }
                             Navigation.findNavController(requireView()).navigate(R.id.nav_info);

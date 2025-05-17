@@ -6,15 +6,6 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/text_foglal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/foglal_s"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <Spinner
         android:id="@+id/monthSpinner"
@@ -22,10 +13,10 @@
         android:layout_height="wrap_content"
         android:minHeight="48dp"
         android:spinnerMode="dropdown"
-        app:layout_constraintTop_toBottomOf="@id/text_foglal"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/serviceSpinner"
-        app:layout_constraintWidth_percent="0.45"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.45" />
 
     <Spinner
         android:id="@+id/serviceSpinner"
@@ -33,10 +24,10 @@
         android:layout_height="wrap_content"
         android:minHeight="48dp"
         android:spinnerMode="dropdown"
-        app:layout_constraintTop_toBottomOf="@id/text_foglal"
-        app:layout_constraintStart_toEndOf="@id/monthSpinner"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.45"/>
+        app:layout_constraintStart_toEndOf="@id/monthSpinner"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.45" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/dateRecyclerView"

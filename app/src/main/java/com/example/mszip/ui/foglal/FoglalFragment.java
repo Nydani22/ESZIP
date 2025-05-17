@@ -51,7 +51,6 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
     private final Map<String, Idopont> napIdopontMap = new HashMap<>();
 
     private String selectedDate = null;
-    private FirebaseAuth mAuth;
     private FirebaseUser user;
 
 
@@ -71,7 +70,7 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
 
 
         db = FirebaseFirestore.getInstance();
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
 
         setupMonthSpinner();
@@ -117,7 +116,6 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
             Map<String, Object> foglalas = new HashMap<>();
             foglalas.put("userid", user.getUid());
             foglalas.put("idopontid", idopontId);
-            foglalas.put("datum", selectedDate);
             FirebaseFirestore.getInstance()
                     .collection("Foglalasok")
                     .add(foglalas)
@@ -127,13 +125,13 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
                                 .document(idopontId)
                                 .update("available", false)
                                 .addOnSuccessListener(aVoid -> {
-                                    updateDays();
-                                    loadIdopontokForSelectedService();
                                     new AlertDialog.Builder(requireContext())
                                             .setTitle("Sikeres Foglalás!")
                                             .setMessage("Foglalás: " + selectedService.name + "\nDátum: " + selectedDate)
                                             .setPositiveButton("OK", null)
                                             .show();
+                                    updateDays();
+                                    loadIdopontokForSelectedService();
                                 })
                                 .addOnFailureListener(e ->
                                         Toast.makeText(requireContext(), "Időpont frissítés sikertelen: " + e.getMessage(), Toast.LENGTH_LONG).show()
@@ -271,7 +269,7 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
             dayAdapter.setSelectedDate(day);
             dayAdapter.notifyDataSetChanged();
         } else {
-            Toast.makeText(requireContext(), "Ez a nap már foglalt", Toast.LENGTH_SHORT).show();
+            new AlertDialog.Builder(requireContext()).setTitle("Hiba").setMessage("Ez a nap nem elérhető!").setPositiveButton("OK",null).show();
         }
     }
 }

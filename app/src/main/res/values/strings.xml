@@ -28,4 +28,15 @@
     <string name="id_tartam">Időtartam:</string>
     <string name="foglal_s">Foglalás</string>
     <string name="nap">nap</string>
+    <string name="info">Info</string>
+    <string name="jelsz">Jelszó</string>
+    <string name="teljes_n_v">Teljes név</string>
+    <string name="profil">Profil</string>
+    <string name="fi_k_t_rl_se">Fiók törlése</string>
+    <string name="ment_s">Mentés</string>
+    <string name="foglal_saim">Foglalásaim</string>
+    <string name="d_tum">Dátum</string>
+    <string name="szolg_ltat_s">Szolgáltatás</string>
+    <string name="id_pont">Időpont</string>
+    <string name="t_rl_s">Törlés</string>
 </resources>

@@ -2,6 +2,7 @@ package com.example.mszip.ui.login;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -78,7 +79,6 @@ public class LoginFragment extends Fragment {
 
         if (binding.textView!=null) {
             final TextView textView = binding.textView;
-
             loginViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         }
 
@@ -130,6 +130,7 @@ public class LoginFragment extends Fragment {
                             userRef.set(newUser)
                                     .addOnSuccessListener(aVoid -> {
                                         if (getActivity() instanceof MainActivity) {
+                                            ((MainActivity) requireActivity()).updateNavHeader();
                                             ((MainActivity) getActivity()).refreshMenu();
                                         }
                                         Navigation.findNavController(requireView()).navigate(R.id.nav_info);
@@ -139,6 +140,7 @@ public class LoginFragment extends Fragment {
                                     });
                         } else {
                             if (getActivity() instanceof MainActivity) {
+                                ((MainActivity) requireActivity()).updateNavHeader();
                                 ((MainActivity) getActivity()).refreshMenu();
                             }
                             Navigation.findNavController(requireView()).navigate(R.id.nav_info);
@@ -147,7 +149,8 @@ public class LoginFragment extends Fragment {
                 }
 
             } else {
-                Toast.makeText(getContext(), "Google belépés sikertelen!", Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Google belépés sikertelen!").setPositiveButton("OK",null).show();
             }
         });
     }
@@ -158,21 +161,45 @@ public class LoginFragment extends Fragment {
         EditText emailET = binding.editTextEmailAddress.getEditText();
         EditText pwET = binding.editTextPassword.getEditText();
 
-        if (emailET == null || pwET == null) {
+        if (emailET==null || pwET == null) {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Sikertelen bejelentkezés!")
+                    .setMessage("Nem adtad meg az emailt vagy a jelszót.")
+                    .setPositiveButton("OK", null)
+                    .show();
             return;
         }
         String email = emailET.getText().toString();
         String pw = pwET.getText().toString();
 
+        if (email.isEmpty()) {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Sikertelen bejelentkezés!")
+                    .setMessage("Nem adtad meg az emailt.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        } else if (pw.isEmpty()) {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Sikertelen bejelentkezés!")
+                    .setMessage("Nem adtad meg a jelszót.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
+
+
         mAuth.signInWithEmailAndPassword(email, pw).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (getActivity() instanceof MainActivity) {
                     ((MainActivity) getActivity()).refreshMenu();
+                    ((MainActivity) requireActivity()).updateNavHeader();
                 }
                 NavController navController = Navigation.findNavController(requireView());
                 navController.navigate(R.id.nav_info);
             } else {
-                Toast.makeText(getContext(), "Sikertelen Bejelentkezés: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Sikertelen bejelentkezés!").setPositiveButton("OK",null).show();
             }
         });
     }

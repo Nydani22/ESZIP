@@ -2,6 +2,8 @@ package com.example.mszip;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
 import androidx.navigation.NavController;
@@ -14,12 +16,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.mszip.databinding.ActivityMainBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
     private FirebaseAuth mAuth;
+
+    private NavController navController;
+
+    private NavigationView navigationView;
     private FirebaseAuth.AuthStateListener authStateListener;
 
     @Override
@@ -32,33 +39,68 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(binding.appBarMain.toolbar);
 
         DrawerLayout drawer = binding.drawerLayout;
-        NavigationView navigationView = binding.navView;
+        navigationView = binding.navView;
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_info, R.id.nav_login)
                 .setOpenableLayout(drawer)
                 .build();
 
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
         mAuth = FirebaseAuth.getInstance();
         authStateListener = firebaseAuth -> updateLoginMenuItem(navigationView);
         updateLoginMenuItem(navigationView);
+
+        updateNavHeader();
+
         navigationView.setNavigationItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
             if (itemId == R.id.nav_logout) {
-                mAuth.signOut();
-                navController.navigate(R.id.nav_info);
-                updateLoginMenuItem(navigationView);
+                logout();
                 return true;
             }
+
 
             return NavigationUI.onNavDestinationSelected(item, navController)
                     || super.onOptionsItemSelected(item);
         });
+        refreshMenu();
+    }
+
+    public void logout() {
+        mAuth.signOut();
+        navController.navigate(R.id.nav_info);
+        updateLoginMenuItem(navigationView);
+        updateNavHeader();
+        refreshMenu();
+    }
+
+
+    public void updateNavHeader() {
+        NavigationView navigationView = binding.navView;
+        View headerView = navigationView.getHeaderView(0);
+        TextView emailTextView = headerView.findViewById(R.id.email);
+        TextView teljesnevTextView = headerView.findViewById(R.id.teljesnev);
+
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            emailTextView.setText(user.getEmail());
+
+            FirebaseFirestore.getInstance().collection("Users").document(user.getUid())
+                    .get()
+                    .addOnSuccessListener(document -> {
+                        if (document.exists()) {
+                            teljesnevTextView.setText(document.getString("teljesnev"));
+                        }
+                    });
+        } else {
+            emailTextView.setText("Nem vagy bejelentkezve");
+            teljesnevTextView.setText("");
+        }
     }
 
     @Override
@@ -78,13 +120,15 @@ public class MainActivity extends AppCompatActivity {
     private void updateLoginMenuItem(NavigationView navigationView) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         MenuItem loginItem = navigationView.getMenu().findItem(R.id.nav_login);
+        MenuItem profilItem = navigationView.getMenu().findItem(R.id.nav_profile);
         MenuItem logoutItem = navigationView.getMenu().findItem(R.id.nav_logout);
-
         if (user != null) {
             loginItem.setVisible(false);
+            profilItem.setVisible(true);
             logoutItem.setVisible(true);
         } else {
             loginItem.setVisible(true);
+            profilItem.setVisible(false);
             logoutItem.setVisible(false);
         }
     }

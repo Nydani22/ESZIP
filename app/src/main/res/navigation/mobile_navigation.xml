@@ -8,27 +8,34 @@
     <fragment
         android:id="@+id/nav_info"
         android:name="com.example.mszip.ui.info.InfoFragment"
-        android:label="@string/eszip"
+        android:label="@string/info"
         tools:layout="@layout/fragment_info" />
 
     <fragment
         android:id="@+id/nav_foglal"
         android:name="com.example.mszip.ui.foglal.FoglalFragment"
-        android:label="@string/eszip"
+        android:label="@string/foglal_s"
         tools:layout="@layout/fragment_foglal"
         />
 
     <fragment
         android:id="@+id/nav_login"
         android:name="com.example.mszip.ui.login.LoginFragment"
-        android:label="@string/eszip"
+        android:label="@string/bejelentkezes"
         tools:layout="@layout/fragment_login"
+        />
+
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.example.mszip.ui.profile.ProfileFragment"
+        android:label="@string/profil"
+        tools:layout="@layout/profile"
         />
 
     <fragment
         android:id="@+id/nav_register"
         android:name="com.example.mszip.ui.register.RegisterFragment"
-        android:label="@string/eszip"
+        android:label="@string/regisztracio"
         tools:layout="@layout/fragment_register"
         />
 </navigation>
