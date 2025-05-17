@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -50,16 +51,17 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
                              ViewGroup container, Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_foglal, container, false);
-
+        FoglalViewModel viewModel = new ViewModelProvider(this).get(FoglalViewModel.class);
         monthSpinner = root.findViewById(R.id.monthSpinner);
         serviceSpinner = root.findViewById(R.id.serviceSpinner);
         dateRecyclerView = root.findViewById(R.id.dateRecyclerView);
         btnFoglal = root.findViewById(R.id.btnFoglal);
+        String selectedServiceId = getArguments() != null ? getArguments().getString("selectedServiceId") : null;
+
 
         db = FirebaseFirestore.getInstance();
 
         setupMonthSpinner();
-        setupServiceSpinner();
 
         dayAdapter = new DayAdapter(days, foglaltNapok, this);
         dateRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 7)); // hét napos rács
@@ -86,11 +88,11 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
 
         btnFoglal.setOnClickListener(v -> {
             if (selectedDate == null) {
-                Toast.makeText(requireContext(), "Kérlek válassz egy napot!", Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(requireContext()).setTitle("Hiba").setMessage("Kérlek válassz egy napot!").setPositiveButton("OK",null).show();
                 return;
             }
             if (selectedService == null) {
-                Toast.makeText(requireContext(), "Kérlek válassz egy szolgáltatást!", Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(requireContext()).setTitle("Hiba").setMessage("Kérlek válassz egy szolgáltatást!").setPositiveButton("OK",null).show();
                 return;
             }
             // Itt jönne a foglalás logika, most csak egy üzenet
@@ -101,83 +103,117 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
                     .show();
         });
 
+        viewModel.getServices().observe(getViewLifecycleOwner(), fetchedServices -> {
+            services.clear();
+            services.addAll(fetchedServices);
+
+            List<String> serviceNames = new ArrayList<>();
+            for (Service s : services) {
+                serviceNames.add(s.name);
+            }
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                    android.R.layout.simple_spinner_dropdown_item, serviceNames);
+            serviceSpinner.setAdapter(adapter);
+
+            if (!services.isEmpty()) {
+                selectedService = services.get(0);
+                loadIdopontokForSelectedService();
+            }
+
+            if (selectedServiceId != null) {
+                for (int i = 0; i < services.size(); i++) {
+                    if (services.get(i).id.equals(selectedServiceId)) {
+                        serviceSpinner.setSelection(i);
+                        selectedService = services.get(i);
+                        break;
+                    }
+                }
+            }
+        });
+
+        viewModel.fetchServices();
+
         return root;
     }
 
     private void setupMonthSpinner() {
-        String[] months = new String[]{
+        String[] allMonths = new String[]{
                 "Január", "Február", "Március", "Április", "Május", "Június",
                 "Július", "Augusztus", "Szeptember", "Október", "November", "December"
         };
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_dropdown_item, months);
-        monthSpinner.setAdapter(adapter);
 
         int currentMonth = Calendar.getInstance().get(Calendar.MONTH);
-        monthSpinner.setSelection(currentMonth);
-    }
 
-    private void setupServiceSpinner() {
-        services.clear();
-        services.add(new Service("s1", "Kijelzőcsere", 25000, "60 perc"));
-        services.add(new Service("s2", "Akkucsere", 18000, "45 perc"));
-        services.add(new Service("s3", "Alaplap javítás", 30000, "2 nap"));
-
-        List<String> serviceNames = new ArrayList<>();
-        for (Service s : services) {
-            serviceNames.add(s.name);
+        List<String> remainingMonths = new ArrayList<>();
+        for (int i = currentMonth; i < allMonths.length; i++) {
+            remainingMonths.add(allMonths[i]);
         }
+
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_dropdown_item, serviceNames);
-        serviceSpinner.setAdapter(adapter);
-
-        if (!services.isEmpty()) {
-            selectedService = services.get(0);
-        }
+                android.R.layout.simple_spinner_dropdown_item, remainingMonths);
+        monthSpinner.setAdapter(adapter);
+        monthSpinner.setSelection(0);
     }
+
+
+
 
     private void updateDays() {
         days.clear();
         foglaltNapok.clear();
         selectedDate = null;
+        dayAdapter.setSelectedDate(null);
 
         int year = Calendar.getInstance().get(Calendar.YEAR);
-        int month = monthSpinner.getSelectedItemPosition(); // 0-based hónap
+        int currentMonth = Calendar.getInstance().get(Calendar.MONTH); // 0-based
+        int selectedIndex = monthSpinner.getSelectedItemPosition();
+        int realMonth = currentMonth + selectedIndex;
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month, 1);
+        calendar.set(year, realMonth, 1);
         int maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
         for (int i = 1; i <= maxDay; i++) {
-            days.add(String.format("%04d-%02d-%02d", year, month + 1, i));
+            days.add(String.format("%04d-%02d-%02d", year, realMonth + 1, i));
         }
         dayAdapter.notifyDataSetChanged();
     }
 
+
     private void loadIdopontokForSelectedService() {
         if (selectedService == null) return;
 
-        db.collection("idopontok")
+        db.collection("Idopontok")
                 .whereEqualTo("serviceid", selectedService.id)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         idopontok.clear();
                         foglaltNapok.clear();
+                        Set<String> elerhetoNapok = new HashSet<>();
+
                         for (QueryDocumentSnapshot doc : task.getResult()) {
                             String date = doc.getString("date");
                             Boolean available = doc.getBoolean("available");
-                            if (date != null && available != null && !available) {
-                                foglaltNapok.add(date);
+
+                            if (date != null) {
+                                elerhetoNapok.add(date);
+                                if (!Boolean.TRUE.equals(available)) {
+                                    foglaltNapok.add(date);
+                                }
                             }
                         }
+
                         dayAdapter.setFoglaltNapok(foglaltNapok);
+                        dayAdapter.setElerhetoNapok(elerhetoNapok);
                         dayAdapter.notifyDataSetChanged();
                     } else {
                         Toast.makeText(requireContext(), "Nem sikerült betölteni az időpontokat", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
 
     @Override
     public void onDayClick(String day) {

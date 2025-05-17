@@ -9,6 +9,7 @@ import com.example.mszip.R;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -20,17 +21,24 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
 
     private List<String> days;
     private Set<String> foglaltNapok;
+    private Set<String> elerhetoNapok = new HashSet<>();
     private String selectedDate = null;
     private final OnDayClickListener listener;
 
+
+
     public DayAdapter(List<String> days, Set<String> foglaltNapok, OnDayClickListener listener) {
         this.days = days;
-        this.foglaltNapok = foglaltNapok;
+        this.foglaltNapok = foglaltNapok != null ? foglaltNapok : new HashSet<>();
         this.listener = listener;
     }
 
+    public void setElerhetoNapok(Set<String> elerhetoNapok) {
+        this.elerhetoNapok = elerhetoNapok != null ? elerhetoNapok : new HashSet<>();
+    }
+
     public void setFoglaltNapok(Set<String> foglaltNapok) {
-        this.foglaltNapok = foglaltNapok;
+        this.foglaltNapok = foglaltNapok != null ? foglaltNapok : new HashSet<>();
     }
 
     public void setSelectedDate(String selectedDate) {
@@ -47,7 +55,10 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull DayViewHolder holder, int position) {
         String day = days.get(position);
-        holder.bind(day, foglaltNapok.contains(day), day.equals(selectedDate));
+        boolean foglalt = foglaltNapok.contains(day);
+        boolean elerheto = elerhetoNapok.contains(day);
+        boolean selected = day.equals(selectedDate);
+        holder.bind(day, elerheto, foglalt, selected);
     }
 
     @Override
@@ -63,26 +74,24 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
             textView = itemView.findViewById(R.id.text_day);
         }
 
-        void bind(String day, boolean foglalt, boolean selected) {
-            String dayNumber = day.substring(day.length() - 2);
-            textView.setText(dayNumber);
+        void bind(String fullDate, boolean elerheto, boolean foglalt, boolean selected) {
+            String napSzam = fullDate.substring(fullDate.length() - 2); // "dd"
+            textView.setText(napSzam);
 
-            if (foglalt) {
-                textView.setTextColor(Color.RED);
-                textView.setEnabled(false);
-            } else {
-                textView.setTextColor(selected ? Color.WHITE : Color.BLACK);
-                textView.setBackgroundColor(selected ? Color.BLUE : Color.TRANSPARENT);
-                textView.setEnabled(true);
-            }
+            boolean kattinthato = elerheto && !foglalt;
+
+            textView.setEnabled(kattinthato);
+            textView.setTextColor(kattinthato ? (selected ? Color.WHITE : Color.BLACK) : Color.GRAY);
+            textView.setBackgroundColor(selected ? Color.BLUE : Color.TRANSPARENT);
 
             itemView.setOnClickListener(v -> {
-                if (!foglalt) {
-                    listener.onDayClick(day);
+                if (kattinthato) {
+                    listener.onDayClick(fullDate);
                 }
             });
         }
     }
 }
+
 
 

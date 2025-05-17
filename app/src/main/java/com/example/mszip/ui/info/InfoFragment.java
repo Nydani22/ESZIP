@@ -12,6 +12,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+
 import com.example.mszip.R;
 import com.example.mszip.databinding.FragmentInfoBinding;
 import com.example.mszip.model.service.Service;
@@ -46,7 +49,10 @@ public class InfoFragment extends Fragment {
                 priceText.setText("Ár: " + service.price + " Ft");
                 timeText.setText("Időtartam: " + service.time);
                 bookButton.setOnClickListener(v -> {
-                    //Toast.makeText(getContext(), "Foglalva: " + service.name, Toast.LENGTH_SHORT).show();
+                    NavController navController = NavHostFragment.findNavController(InfoFragment.this);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("selectedServiceId", service.id);
+                    navController.navigate(R.id.nav_foglal, bundle);
                 });
                 delay += 100;
 
