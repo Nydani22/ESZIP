@@ -71,14 +71,14 @@ public class ProfileViewModel extends ViewModel {
                                     Collections.sort(vmList, (a, b) -> b.getDatum().compareTo(a.getDatum()));
                                     foglalasok.postValue(new ArrayList<>(vmList));
                                 }
-                                @Override public void onFailure(Exception e) { /* todo */ }
+                                @Override public void onFailure(Exception e) { /* kezelni */ }
                             });
                         }
-                        @Override public void onFailure(Exception e) { /* todo */ }
+                        @Override public void onFailure(Exception e) { /* kezelni */ }
                     });
                 }
             }
-            @Override public void onFailure(Exception e) { /* todo */ }
+            @Override public void onFailure(Exception e) { /* kezelni */ }
         });
     }
 

@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -84,6 +86,10 @@ public class AdminFragment extends Fragment {
         View dlg = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_idopont, null);
         EditText etDate = dlg.findViewById(R.id.editDatetext);
         Spinner spService = dlg.findViewById(R.id.spinnerService);
+
+
+        Animation anim = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_up);
+        dlg.startAnimation(anim);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item,
                 vm.getServices().getValue().stream().map(Service::getName).collect(Collectors.toList()));
@@ -177,6 +183,8 @@ public class AdminFragment extends Fragment {
         EditText etPrice = dlg.findViewById(R.id.editPrice);
         EditText etTime = dlg.findViewById(R.id.editTime);
 
+        Animation anim = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_up);
+        dlg.startAnimation(anim);
 
         etName.setText(service.getName());
         etPrice.setText(String.valueOf(service.getPrice()));
@@ -231,6 +239,9 @@ public class AdminFragment extends Fragment {
         EditText etName = dlg.findViewById(R.id.editName);
         EditText etPrice = dlg.findViewById(R.id.editPrice);
         EditText etTime = dlg.findViewById(R.id.editTime);
+
+        Animation anim = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_up);
+        dlg.startAnimation(anim);
 
         AlertDialog alertDialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Új szolgáltatás")

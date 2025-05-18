@@ -119,7 +119,6 @@ public class RegisterFragment extends Fragment {
                 Toast.makeText(getContext(), "Sikertelen regisztráció: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
             }
         });
-
     }
 
     @Override
