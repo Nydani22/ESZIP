@@ -24,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private FirebaseAuth mAuth;
 
+    private String role="";
+
     private NavController navController;
 
     private NavigationView navigationView;
@@ -75,9 +77,11 @@ public class MainActivity extends AppCompatActivity {
         mAuth.signOut();
         navController.navigate(R.id.nav_info);
         updateLoginMenuItem(navigationView);
+        role="";
         updateNavHeader();
         refreshMenu();
     }
+
 
 
     public void updateNavHeader() {
@@ -95,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
                     .addOnSuccessListener(document -> {
                         if (document.exists()) {
                             teljesnevTextView.setText(document.getString("teljesnev"));
+                            role=document.getString("role");
+                            updateLoginMenuItem(navigationView);
                         }
                     });
         } else {
@@ -121,13 +127,16 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         MenuItem loginItem = navigationView.getMenu().findItem(R.id.nav_login);
         MenuItem profilItem = navigationView.getMenu().findItem(R.id.nav_profile);
+        MenuItem adminItem = navigationView.getMenu().findItem(R.id.nav_admin);
         MenuItem logoutItem = navigationView.getMenu().findItem(R.id.nav_logout);
         if (user != null) {
             loginItem.setVisible(false);
             profilItem.setVisible(true);
             logoutItem.setVisible(true);
+            adminItem.setVisible(role.equals("admin"));
         } else {
             loginItem.setVisible(true);
+            adminItem.setVisible(false);
             profilItem.setVisible(false);
             logoutItem.setVisible(false);
         }

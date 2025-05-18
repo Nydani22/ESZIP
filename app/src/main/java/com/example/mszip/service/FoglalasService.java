@@ -45,6 +45,8 @@ public class FoglalasService {
     }
 
 
+
+
     public void getServiceById(String serviceId, Callback<Service> callback) {
         db.collection("Services").document(serviceId)
                 .get()

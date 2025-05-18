@@ -11,6 +11,7 @@ import com.example.mszip.model.service.Service;
 import com.example.mszip.service.FoglalasService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -70,14 +71,14 @@ public class ProfileViewModel extends ViewModel {
                                     Collections.sort(vmList, (a, b) -> b.getDatum().compareTo(a.getDatum()));
                                     foglalasok.postValue(new ArrayList<>(vmList));
                                 }
-                                @Override public void onFailure(Exception e) { /* kezelni */ }
+                                @Override public void onFailure(Exception e) { /* todo */ }
                             });
                         }
-                        @Override public void onFailure(Exception e) { /* kezelni */ }
+                        @Override public void onFailure(Exception e) { /* todo */ }
                     });
                 }
             }
-            @Override public void onFailure(Exception e) { /* kezelni */ }
+            @Override public void onFailure(Exception e) { /* todo */ }
         });
     }
 
@@ -149,11 +150,31 @@ public class ProfileViewModel extends ViewModel {
     public void torolFelh() {
         FirebaseUser user = auth.getCurrentUser();
         if (user != null) {
-            db.collection("Users").document(user.getUid()).delete()
-                    .addOnSuccessListener(aVoid -> user.delete()
-                            .addOnSuccessListener(unused -> hibaUzenet.setValue("Fiók törölve"))
-                            .addOnFailureListener(e -> hibaUzenet.setValue("Felhasználó törlés sikertelen: " + e.getMessage()))
-                    ).addOnFailureListener(e -> hibaUzenet.setValue("Adatbázisból törlés hiba: " + e.getMessage()));
+            String uid = user.getUid();
+            db.collection("Foglalasok")
+                    .whereEqualTo("userid", uid)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        for (DocumentSnapshot document : queryDocumentSnapshots) {
+                            String foglalasId = document.getId();
+                            String idopontId = document.getString("idopontid");
+                            if (idopontId != null) {
+                                db.collection("Idopontok").document(idopontId)
+                                        .update("available", true);
+                            }
+                            db.collection("Foglalasok").document(foglalasId)
+                                    .delete();
+                        }
+                        db.collection("Users").document(uid).delete()
+                                .addOnSuccessListener(aVoid -> {
+                                    user.delete()
+                                            .addOnSuccessListener(unused -> hibaUzenet.setValue("Fiók törölve"))
+                                            .addOnFailureListener(e -> hibaUzenet.setValue("Felhasználó törlés sikertelen: " + e.getMessage()));
+                                })
+                                .addOnFailureListener(e -> hibaUzenet.setValue("Adatbázisból törlés hiba: " + e.getMessage()));
+                    })
+                    .addOnFailureListener(e -> hibaUzenet.setValue("Foglalások törlése sikertelen: " + e.getMessage()));
         }
     }
+
 }

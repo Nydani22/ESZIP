@@ -12,6 +12,11 @@
             android:id="@+id/nav_foglal"
             android:icon="@drawable/ic_date"
             android:title="@string/foglal" />
+
+        <item
+            android:id="@+id/nav_admin"
+            android:icon="@drawable/ic_admin"
+            android:title="@string/admin" />
         <item
             android:id="@+id/nav_profile"
             android:icon="@drawable/ic_person"

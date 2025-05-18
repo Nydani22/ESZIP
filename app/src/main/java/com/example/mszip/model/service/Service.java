@@ -47,5 +47,10 @@ public class Service {
     public void setTime(String time) {
         this.time = time;
     }
+
+    @Override
+    public String toString() {
+        return  name + "\n Ára:" + price + " Ft\n Idő: " + time;
+    }
 }
 

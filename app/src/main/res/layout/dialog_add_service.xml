@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:minWidth="500dp"
+    android:maxWidth="800dp"
+    android:orientation="vertical"
+    android:layout_gravity="center_horizontal"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/dialogService"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/n_v"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/editName"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:autofillHints=""
+        android:hint="@string/szolg_ltat_s_neve"
+        android:inputType="textPersonName" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/r"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/editPrice"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:autofillHints=""
+        android:hint="@string/szolg_ltat_s_ra"
+        android:inputType="number" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/id_tartam"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/editTime"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:autofillHints=""
+        android:hint="@string/kb_10perc"
+        android:inputType="text" />
+</LinearLayout>

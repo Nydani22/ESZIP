@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,7 +54,6 @@ public class ProfileFragment extends Fragment {
         viewModel.getSikeresMentes().observe(getViewLifecycleOwner(), siker -> {
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) requireActivity()).updateNavHeader();
-                ((MainActivity) getActivity()).refreshMenu();
             }
             if (siker)
                 new AlertDialog.Builder(requireContext()).setTitle("Sikeres mentés!").setPositiveButton("OK",null).show();
@@ -100,8 +98,8 @@ public class ProfileFragment extends Fragment {
                     .setTitle("Fiók törlése")
                     .setMessage("Biztosan törölni szeretnéd a fiókodat? Ez a művelet nem visszavonható.")
                     .setPositiveButton("Igen", (dialog, which) -> {
-                        ((MainActivity) requireActivity()).logout();
                         viewModel.torolFelh();
+                        ((MainActivity) requireActivity()).logout();
                     })
                     .setNegativeButton("Mégse", null)
                     .show();

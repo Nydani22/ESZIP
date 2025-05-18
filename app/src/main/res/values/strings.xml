@@ -39,4 +39,16 @@
     <string name="szolg_ltat_s">Szolgáltatás</string>
     <string name="id_pont">Időpont</string>
     <string name="t_rl_s">Törlés</string>
+    <string name="id_pontok_kezel_se">Időpontok kezelése</string>
+    <string name="j_id_pont_hozz_ad_sa">Új időpont hozzáadása</string>
+    <string name="szolg_ltat_sok_kezel_se">Szolgáltatások kezelése</string>
+    <string name="j_szolg_ltat_s_hozz_ad_sa">Új szolgáltatás hozzáadása</string>
+    <string name="yyyy_mm_dd">YYYY-MM-DD</string>
+    <string name="kb_10perc">kb. 10 perc</string>
+    <string name="szolg_ltat_s_ra">Szolgáltatás ára</string>
+    <string name="n_v">Név</string>
+    <string name="admin">Admin</string>
+    <string name="idopontok_list_ja">Idopontok listája</string>
+    <string name="szolg_ltat_sok_list_ja">Szolgáltatások listája</string>
+    <string name="szerkeszt_s">Szerkesztés</string>
 </resources>

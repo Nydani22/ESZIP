@@ -45,4 +45,6 @@ public class Idopont {
     public void setAvailable(boolean available) {
         this.available = available;
     }
+
+
 }

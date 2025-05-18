@@ -131,7 +131,6 @@ public class LoginFragment extends Fragment {
                                     .addOnSuccessListener(aVoid -> {
                                         if (getActivity() instanceof MainActivity) {
                                             ((MainActivity) requireActivity()).updateNavHeader();
-                                            ((MainActivity) getActivity()).refreshMenu();
                                         }
                                         Navigation.findNavController(requireView()).navigate(R.id.nav_info);
                                     })
@@ -141,7 +140,6 @@ public class LoginFragment extends Fragment {
                         } else {
                             if (getActivity() instanceof MainActivity) {
                                 ((MainActivity) requireActivity()).updateNavHeader();
-                                ((MainActivity) getActivity()).refreshMenu();
                             }
                             Navigation.findNavController(requireView()).navigate(R.id.nav_info);
                         }
@@ -192,7 +190,6 @@ public class LoginFragment extends Fragment {
         mAuth.signInWithEmailAndPassword(email, pw).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).refreshMenu();
                     ((MainActivity) requireActivity()).updateNavHeader();
                 }
                 NavController navController = Navigation.findNavController(requireView());

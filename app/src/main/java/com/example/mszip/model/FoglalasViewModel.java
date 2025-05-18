@@ -28,4 +28,6 @@ public class FoglalasViewModel {
     public String getAr() {
         return ar;
     }
+
+
 }

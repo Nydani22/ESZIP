@@ -108,7 +108,6 @@ public class RegisterFragment extends Fragment {
                         .addOnSuccessListener(aVoid -> {
                             if (getActivity() instanceof MainActivity) {
                                 ((MainActivity) requireActivity()).updateNavHeader();
-                                ((MainActivity) getActivity()).refreshMenu();
                             }
                             Navigation.findNavController(requireView()).navigate(R.id.nav_info);
                         })
