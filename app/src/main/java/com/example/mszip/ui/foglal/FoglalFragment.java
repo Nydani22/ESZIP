@@ -1,6 +1,15 @@
 package com.example.mszip.ui.foglal;
 
+import android.Manifest;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +20,10 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresPermission;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -24,11 +37,15 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,10 +73,32 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
 
     private Service selectedService = null;
 
+    private void checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1001);
+            }
+        }
+    }
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "FoglalasChannel";
+            String description = "Értesítés a sikeres foglalásról";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("FOGLALAS_CHANNEL_ID", name, importance);
+            channel.setDescription(description);
+
+            NotificationManager notificationManager = requireContext().getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
+        checkNotificationPermission();
+        createNotificationChannel();
         View root = inflater.inflate(R.layout.fragment_foglal, container, false);
         FoglalViewModel viewModel = new ViewModelProvider(this).get(FoglalViewModel.class);
         monthSpinner = root.findViewById(R.id.monthSpinner);
@@ -67,6 +106,7 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
         dateRecyclerView = root.findViewById(R.id.dateRecyclerView);
         btnFoglal = root.findViewById(R.id.btnFoglal);
         String selectedServiceId = getArguments() != null ? getArguments().getString("selectedServiceId") : null;
+
 
 
         db = FirebaseFirestore.getInstance();
@@ -130,6 +170,8 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
                                             .setMessage("Foglalás: " + selectedService.name + "\nDátum: " + selectedDate)
                                             .setPositiveButton("OK", null)
                                             .show();
+                                    sendSuccessNotification(selectedService.name, selectedDate);
+                                    scheduleReminder(selectedService.name, selectedDate);
                                     updateDays();
                                     loadIdopontokForSelectedService();
                                 })
@@ -175,6 +217,56 @@ public class FoglalFragment extends Fragment implements DayAdapter.OnDayClickLis
         viewModel.fetchServices();
 
         return root;
+    }
+
+    private void scheduleReminder(String serviceName, String dateString) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        try {
+            Date date = sdf.parse(dateString);
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            cal.add(Calendar.DATE, -1);
+            cal.set(Calendar.HOUR_OF_DAY, 8);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+
+            long triggerTime = cal.getTimeInMillis();
+
+
+            if (triggerTime < System.currentTimeMillis()) return;
+
+            Intent intent = new Intent(requireContext(), ReminderReceiver.class);
+            intent.putExtra("serviceName", serviceName);
+            intent.putExtra("date", dateString);
+
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                    requireContext(),
+                    (int) System.currentTimeMillis(),
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
+
+            AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    private void sendSuccessNotification(String serviceName, String date) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(requireContext(), "FOGLALAS_CHANNEL_ID")
+                .setSmallIcon(R.drawable.ic_date)
+                .setContentTitle("Sikeres foglalás!")
+                .setContentText("Szolgáltatás: " + serviceName + ", Dátum: " + date)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(requireContext());
+        notificationManager.notify(1, builder.build());
     }
 
     private void setupMonthSpinner() {
