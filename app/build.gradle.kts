@@ -49,8 +49,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation(platform(libs.firebase.bom)) // BOM
+    implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
+
+
     implementation("com.google.android.gms:play-services-auth:19.0.0")
     implementation("androidx.room:room-runtime:2.6.1")
     implementation (libs.firebase.firestore)

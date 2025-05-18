@@ -1,11 +1,21 @@
 package com.example.mszip;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.Manifest;
 
 import com.google.android.material.navigation.NavigationView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -31,10 +41,20 @@ public class MainActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private FirebaseAuth.AuthStateListener authStateListener;
 
+
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private static final int PERMISSION_CODE = 100;
+
+    private static final String PREFS_NAME = "app_prefs";
+    private static final String KEY_HEADER_IMAGE_URI = "header_image_uri";
+
+
+    private ImageView headerImageView;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -70,7 +90,110 @@ public class MainActivity extends AppCompatActivity {
             return NavigationUI.onNavDestinationSelected(item, navController)
                     || super.onOptionsItemSelected(item);
         });
+        View headerView = binding.navView.getHeaderView(0);
+        headerImageView = headerView.findViewById(R.id.imageView);
+
+
+        headerImageView.setOnClickListener(v -> {
+            if (checkPermissions()) {
+                openImageChooser();
+            }
+        });
+        loadSavedImageUri();
         refreshMenu();
+    }
+
+    private boolean checkPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                        new String[]{Manifest.permission.READ_MEDIA_IMAGES},
+                        PERMISSION_CODE
+                );
+                return false;
+            }
+        } else {
+            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        PERMISSION_CODE
+                );
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+
+    private void openImageChooser() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    private void loadSavedImageUri() {
+        String uriString = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .getString(KEY_HEADER_IMAGE_URI, null);
+        if (uriString != null) {
+            Uri uri = Uri.parse(uriString);
+            headerImageView.setImageURI(uri);
+        }
+    }
+
+
+
+    private void saveImageUri(Uri uri) {
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .edit()
+                .putString(KEY_HEADER_IMAGE_URI, uri.toString())
+                .apply();
+    }
+
+
+
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_CODE) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openImageChooser();
+            } else {
+                Toast.makeText(this,
+                        "Engedély szükséges a képek eléréséhez",
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode,
+                                    int resultCode,
+                                    @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST
+                && resultCode == RESULT_OK
+                && data != null
+                && data.getData() != null) {
+
+            Uri imageUri = data.getData();
+            getContentResolver().takePersistableUriPermission(
+                    imageUri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+            );
+
+            headerImageView.setImageURI(imageUri);
+            saveImageUri(imageUri);
+        }
     }
 
     public void logout() {
